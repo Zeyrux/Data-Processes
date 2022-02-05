@@ -1,16 +1,12 @@
+from datetime import datetime
 import os
 import time
+import psutil
+import threading
 
-timer = time.time_ns()
-os.system("g++ test.cpp")
-print(f"BUILD SUCCESSFULLY: {(time.time_ns()- timer) / 1_000_000_000}\n\n")
-timer = time.time_ns()
-os.system("a.exe")
-print(f"\n\nTIME: {(time.time_ns()- timer) / 1_000_000_000}")
+DATABASE_PATH = os.path.join("C:\\Zeyrux\\Database", "database.txt")
 
-
-
-important = [
+IMPORTANT = [
     "connections",
     "cpu_affinity",
     "cpu_percent",
@@ -34,14 +30,38 @@ important = [
     "username"
 ]
 
-eventuell = [
+SOMETHING_BETWEEN = [
     "environ",
     "memory_maps", # gibt sehr viel inforamtionene, aber auch sehr sehr lang
     "open_files" # gibt alle geöffnete dateien an, aber viel speicher
 ]
 
 
-unimportant = [
+UNIMPORTANT = [
     "cmdline",
     "memory_info"
 ]
+
+
+def save():
+    timer = time.time_ns()
+    with open(DATABASE_PATH, "ab") as f:
+        f.write("\n#NEW_INPUT#\n".encode())
+        f.write(f"date: {str(datetime.now())}\n".encode())
+        for proc in psutil.process_iter():
+            f.write((str(proc.as_dict(attrs=IMPORTANT)) + "\n").encode())
+        end_time = (time.time_ns()-timer) / 1_000_000_000
+        f.write(
+            f"finished in: {end_time}\n".encode()
+        )
+        print(f"finished in: {end_time}")
+
+
+def main():
+    while True:
+        threading.Thread(target=save, daemon=True).start()
+        time.sleep(60)
+
+
+if __name__ == "__main__":
+    main()
