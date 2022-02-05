@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QMainWindow,
     QApplication,
     QGridLayout,
-    QPushButton,
+    QVBoxLayout,
     QWidget
 )
 
@@ -12,8 +12,8 @@ from lib.style import Style
 from lib.CustomWidgets import CustomPushButton
 
 OPTIONS_SELF = [
-    "date:",
-    "finished in:"
+    "date",
+    "finished in"
 ]
 OPTIONS_GEN = [
     "connections",
@@ -45,6 +45,8 @@ STYLE_Q_MAIN_WINDOW = open("styles\\QMainWindow.css", "r").read()
 
 
 class MainWindow(QMainWindow):
+    count_button_clicked = 0
+
     def __init__(self):
         super().__init__()
 
@@ -56,18 +58,39 @@ class MainWindow(QMainWindow):
 
         self.layout_buttons = QGridLayout()
         for i in range(0, len(OPTIONS_GEN), 3):
-            self.layout_buttons.addWidget(
-                CustomPushButton(OPTIONS_GEN[i], checkable=True), i // 3, 0
+            self.layout_buttons.addWidget(CustomPushButton(
+                text=OPTIONS_GEN[i],
+                checkable=True,
+                button_click=self.button_click), i // 3, 0
             )
-            self.layout_buttons.addWidget(
-                CustomPushButton(OPTIONS_GEN[i+1], checkable=True), i // 3, 1
+            self.layout_buttons.addWidget(CustomPushButton(
+                text=OPTIONS_GEN[i+1],
+                checkable=True,
+                button_click=self.button_click), i // 3, 1
             )
-            self.layout_buttons.addWidget(
-                CustomPushButton(OPTIONS_GEN[i+2], checkable=True), i // 3, 2
+            self.layout_buttons.addWidget(CustomPushButton(
+                text=OPTIONS_GEN[i+2],
+                checkable=True,
+                button_click=self.button_click), i // 3, 2
             )
+        self.widget_buttons = QWidget()
+        self.widget_buttons.setLayout(self.layout_buttons)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(CustomPushButton(
+            text=OPTIONS_SELF[0], checkable=True))
+        self.layout.addWidget(CustomPushButton(
+            text=OPTIONS_SELF[1], checkable=True))
+        self.layout.addWidget(self.widget_buttons)
+
         self.widget = QWidget()
-        self.widget.setLayout(self.layout_buttons)
+        self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
+
+    def button_click(self):
+        self.count_button_clicked += 1
+        print("hi")
+        print("2")
 
 
 app = QApplication(sys.argv)
