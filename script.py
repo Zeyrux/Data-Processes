@@ -1,11 +1,12 @@
 import os
 import time
 
-os.system("g++ main.cpp")
-print("BUILD SUCCESSFULLY")
-a = time.time_ns()
+timer = time.time_ns()
+os.system("g++ test.cpp")
+print(f"BUILD SUCCESSFULLY: {(time.time_ns()- timer) / 1_000_000_000}\n\n")
+timer = time.time_ns()
 os.system("a.exe")
-print(f"TIME: {(time.time_ns()- a) / 1_000_000_000}")
+print(f"\n\nTIME: {(time.time_ns()- timer) / 1_000_000_000}")
 
 
 
