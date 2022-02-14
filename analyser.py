@@ -3,45 +3,20 @@ import sys
 from PyQt6.QtWidgets import (
     QMainWindow,
     QApplication,
-    QGridLayout,
     QVBoxLayout,
     QWidget
 )
 
 from lib.style import Style
-from lib.CustomWidgets import CustomPushButton
-
-OPTIONS_SELF = [
-    "date",
-    "finished in"
-]
-OPTIONS_GEN = [
-    "connections",
-    "cpu_affinity",
-    "cpu_percent",
-    "cpu_times",
-    "create_time",
-    "cwd",
-    "exe",
-    "io_counters",
-    "ionice",
-    "memory_full_info",
-    "memory_percent",
-    "name",
-    "nice",
-    "num_ctx_switches",
-    "num_handles",
-    "num_threads",
-    "pid",
-    "ppid",
-    "status",
-    "threads",
-    "username"
-]
+from frames.changer import ChangeVisualisation
+from frames.visualizer import Visualizer
 
 STYLE = "Fusion"
 STYLE_Q_PUSH_BUTTON = open("styles\\QPushButton.css", "r").read()
 STYLE_Q_MAIN_WINDOW = open("styles\\QMainWindow.css", "r").read()
+
+
+window: "MainWindow" = None
 
 
 class MainWindow(QMainWindow):
@@ -50,53 +25,39 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.stylesheet = Style([
-            STYLE_Q_MAIN_WINDOW,
-            STYLE_Q_PUSH_BUTTON
+        self.style = Style([
+            STYLE_Q_MAIN_WINDOW
         ])
-        self.setStyleSheet(self.stylesheet.style)
-
-        self.layout_buttons = QGridLayout()
-        for i in range(0, len(OPTIONS_GEN), 3):
-            self.layout_buttons.addWidget(CustomPushButton(
-                text=OPTIONS_GEN[i],
-                checkable=True,
-                button_click=self.button_click), i // 3, 0
-            )
-            self.layout_buttons.addWidget(CustomPushButton(
-                text=OPTIONS_GEN[i+1],
-                checkable=True,
-                button_click=self.button_click), i // 3, 1
-            )
-            self.layout_buttons.addWidget(CustomPushButton(
-                text=OPTIONS_GEN[i+2],
-                checkable=True,
-                button_click=self.button_click), i // 3, 2
-            )
-        self.widget_buttons = QWidget()
-        self.widget_buttons.setLayout(self.layout_buttons)
+        self.setStyleSheet(self.style.style)
 
         self.layout = QVBoxLayout()
-        self.layout.addWidget(CustomPushButton(
-            text=OPTIONS_SELF[0], checkable=True))
-        self.layout.addWidget(CustomPushButton(
-            text=OPTIONS_SELF[1], checkable=True))
-        self.layout.addWidget(self.widget_buttons)
-
+        self.change = ChangeVisualisation(Style([
+            STYLE_Q_MAIN_WINDOW,
+            STYLE_Q_PUSH_BUTTON
+        ]), self.change_visualization)
+        self.visualizer = Visualizer()
+        self.layout.addWidget(self.visualizer)
+        self.layout.addWidget(self.change)
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
 
-    def button_click(self):
-        self.count_button_clicked += 1
-        print("hi")
-        print("2")
+    def change_visualization(self, new_data: str):
+        self.visualizer.change(new_data)
 
 
-app = QApplication(sys.argv)
-app.setStyle(STYLE)
+def main():
+    global window
+    app = QApplication(sys.argv)
+    app.setStyle(STYLE)
 
-window = MainWindow()
-window.show()
+    window = MainWindow()
+    window.show()
 
-app.exec()
+    app.exec()
+
+
+if __name__ == "__main__":
+    # main()
+    from lib.database import write_all_info
+    write_all_info(copy_data=False)
