@@ -1,12 +1,13 @@
 import os
 import shutil
 import pathlib
+import numpy as np
 
 from lib.Options import OPTIONS_GEN, OPTIONS_GEN_WITH_TYPE, Class
 
-DATABASE_PATH_TO_COPY = os.path.join("C:\\Zeyrux\\Database", "database.txt")
-DATABASE_DIR = "C:\\Zeyrux\\Database\\Analyse"
-DATABASE_PATH = os.path.join(DATABASE_DIR, "database_copy.txt")
+DATABASE_PATH_ORI = os.path.join("C:\\Zeyrux\\Database", "database.data")
+DATABASE_DIR_COPY = "C:\\Zeyrux\\Database\\Analyse"
+DATABASE_PATH_COPY = os.path.join(DATABASE_DIR_COPY, "database_copy.data")
 
 
 class Info:
@@ -20,7 +21,9 @@ class Info:
 
 
 class Process:
-    def __init__(self, info=[]):
+    def __init__(self, info: list = None):
+        if info is None:
+            info = []
         self.info = info
 
     def add_info(self, info: Info):
@@ -28,6 +31,10 @@ class Process:
 
     def remove_info(self, index):
         del self.info[index]
+
+    def save(self, process_screenshot: "ProcessScreenshot"):
+        self.info = np.array(self.info)
+        process_screenshot.add_proc(self)
 
     def __len__(self):
         return len(self.info)
@@ -37,7 +44,16 @@ class Process:
 
 
 class ProcessScreenshot:
-    def __init__(self, date="undef", finished_in=-1., processes=[]):
+    def __init__(
+            self,
+            date="undef",
+            finished_in: float = None,
+            processes: list = None
+    ):
+        if processes is None:
+            processes = []
+        if finished_in is None:
+            finished_in = -1
         self.date = date
         self.finished_in = finished_in
         self.processes = processes
@@ -48,8 +64,9 @@ class ProcessScreenshot:
     def remove_proc(self, index):
         del self.processes[index]
 
-    def save(self):
-        print(self.date)
+    def save(self, process_screenshot_book: "ProcessScreenshotBook"):
+        self.processes = np.array(self.processes)
+        process_screenshot_book.add_proc_screenshot(self)
 
     def __len__(self):
         return len(self.processes)
@@ -59,53 +76,70 @@ class ProcessScreenshot:
                f"len: {self.__len__()}"
 
 
+class ProcessScreenshotBook:
+    def __init__(self, proc_screenshots: list=None):
+        if proc_screenshots is None:
+            proc_screenshots = []
+        self.proc_screenshots = proc_screenshots
+
+    def add_proc_screenshot(self, proc_screenshot: ProcessScreenshot):
+        self.proc_screenshots.append(proc_screenshot)
+
+    def remove_proc_screenshot(self, index):
+        del self.proc_screenshots[index]
+
+    def __len__(self):
+        return len(self.proc_screenshots)
+
+    def __str__(self):
+        return f"len: {self.__len__()}"
+
+
 def copy_database():
-    if not os.path.isdir(DATABASE_DIR):
-        pathlib.Path(DATABASE_DIR).mkdir(
+    if not os.path.isdir(DATABASE_DIR_COPY):
+        pathlib.Path(DATABASE_DIR_COPY).mkdir(
             parents=True,
             exist_ok=True
         )
-    shutil.copy(DATABASE_PATH_TO_COPY, DATABASE_PATH)
+    shutil.copy(DATABASE_PATH_ORI, DATABASE_PATH_COPY)
 
-
-def filter_line(line: str) -> Process:
-    proc = Process()
-    while True:
-        cur_in = []
 
 def write_all_info(copy_data=True):
     # copy database
     if copy_data:
         copy_database()
     # read database
-    with open(DATABASE_PATH, "r") as f:
+    proc_screenshot_book = ProcessScreenshotBook()
+    with open(DATABASE_PATH_COPY, "r") as f:
         cnt_inputs = 0
         proc_screenshot: ProcessScreenshot = None
         date: str
         finished_in: float
-        writer = get_writer()
         for line in f:
             line = line.replace("\n", "")
+            # jump to next line
             if line == "":
                 continue
-            elif line == "#NEW_INPUT#":
-                cnt_inputs += 1
-                if proc_screenshot is not None:
-                    proc_screenshot.save()
-                proc_screenshot = ProcessScreenshot()
-                continue
+            # save date and create new ProcessScreenshot
             elif line[0:4] == "date":
+                if proc_screenshot is not None:
+                    proc_screenshot.save(proc_screenshot_book)
+                proc_screenshot = ProcessScreenshot()
                 proc_screenshot.date = line[6:len(line)]
+                cnt_inputs += 1
                 continue
+            # save finished in
             elif line[0:11] == "finished in":
                 proc_screenshot.finished_in = float(line[13:len(line)])
                 continue
+            # save processes
             else:
-                proc_screenshot.add_proc(filter_line(line))
-
-
-def get_writer() -> dict:
-    writer = {}
-    for inp in OPTIONS_GEN:
-        writer[inp] = open(inp + ".txt", "w")
-    return writer
+                proc = Process()
+                line = line.split(";")
+                for info in line:
+                    info = info.split("#")
+                    proc.add_info(Info(
+                        info[0],
+                        info[1]
+                    ))
+                proc.save(proc_screenshot)

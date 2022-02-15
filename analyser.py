@@ -59,5 +59,6 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    from lib.database import write_all_info
+    from lib.database import write_all_info, copy_database
+    # copy_database()
     write_all_info(copy_data=False)
