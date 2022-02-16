@@ -15,6 +15,8 @@ from lib.database import (
 # https://pyqtgraph.readthedocs.io/en/latest/how_to_use.html
 # https://www.pythonguis.com/tutorials/plotting-pyqtgraph/
 
+# dateteim:
+# https://stackoverflow.com/questions/29385868/plotting-datetime-objects-with-pyqtgraph
 
 def average(array: np.ndarray | list):
     result = 0
@@ -32,10 +34,14 @@ class Visualizer(QMainWindow):
         dates = []
         averages = []
         for i, screenshot in enumerate(book.proc_screenshots):
-            data = screenshot.filter_name("cpu_percent").astype(float)
-            averages.append(average(data))
-            dates.append(i)
+            data = screenshot.filter_value("None")
+            averages.append(len(data))
+            dates.append(60*i)
         self.graph.plot(dates, averages)
+
+        axis = pg.DateAxisItem()
+        self.graph.setAxisItems({"bottom": axis})
+        self.graph.setLabel("left", "cnt None", "")
 
         self.setCentralWidget(self.graph)
 
