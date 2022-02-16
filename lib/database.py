@@ -90,18 +90,10 @@ class ProcessScreenshot:
     def filter_value(self, value: str) -> np.ndarray:
         names = []
         for proc in self.processes:
-            self.filter_value_intermediate_step(proc, value, names)
+            proc_ret = proc.filter_value(value)
+            if len(proc_ret) != 0:
+                names.append(proc_ret)
         return np.array(names, dtype=object)
-
-    def filter_value_intermediate_step(
-            self,
-            proc: Process,
-            value: str,
-            names: list
-    ):
-        proc_ret = proc.filter_value(value)
-        if len(proc_ret) != 0:
-            names.append(proc_ret)
 
     def __len__(self):
         return len(self.processes)
@@ -152,12 +144,13 @@ def read_database(
         copy_database()
     # read database
     proc_screenshot_book = ProcessScreenshotBook()
-    with open(DATABASE_PATH_COPY, "r") as f:
+    with open(DATABASE_PATH_COPY, "rb") as f:
         cnt_inputs = 0
         proc_screenshot: ProcessScreenshot = None
         date: str
         finished_in: float
         for line in f:
+            line = line.decode()
             line = line.replace("\n", "")
             # jump to next line
             if line == "":
