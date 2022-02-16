@@ -61,6 +61,6 @@ if __name__ == "__main__":
     # main()
     from lib.database import read_database, copy_database
     # copy_database()
-    book = read_database(copy_data=False)
-    print(book.proc_screenshots[0].filter_name("name"))
+    book = read_database(copy_data=True)
+    print(book.proc_screenshots[0].filter_value("None"))
 

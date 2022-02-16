@@ -35,30 +35,16 @@ class Process:
         process_screenshot.add_proc(self)
 
     def filter_name(self, name: str) -> str:
-        # for list
-        if type(self.info).__name__ == "list":
-            for info in self.info:
-                if info.name == name:
-                    return info.value
-        # for numpy array
-        else:
-            for info in np.nditer(self.info):
-                if info.name == name:
-                    return info.value
+        for info in self.info:
+            if info.name == name:
+                return info.value
         return ""
 
     def filter_value(self, value: str) -> np.ndarray:
         names = []
-        # for list
-        if type(self.info).__name__ == "list":
-            for info in self.info:
-                if info.value == value:
-                    names.append(info.name)
-        # for numpy array
-        else:
-            for info in np.nditer(self.info):
-                if info.value == value:
-                    names.append(info.name)
+        for info in self.info:
+            if info.value == value:
+                names.append(info.name)
         return np.array(names, dtype=str)
 
     def __len__(self):
@@ -95,36 +81,16 @@ class ProcessScreenshot:
 
     def filter_name(self, name: str) -> np.ndarray:
         values = []
-        # for list
-        if type(self.processes).__name__ == "list":
-            for proc in self.processes:
-                self.filter_name_intermediate_step(proc, name, values)
-        # for numpy array
-        else:
-            for proc in np.nditer(self.processes, flags=["refs_ok"]):
-                self.filter_name_intermediate_step(proc, name, values)
+        for proc in self.processes:
+            proc_ret = proc.filter_name(name)
+            if not proc_ret == "":
+                values.append(proc_ret)
         return np.array(values, dtype=str)
-
-    def filter_name_intermediate_step(
-            self,
-            proc: Process,
-            name: str,
-            values: list
-    ):
-        print(type(proc).__name__)
-        proc_ret = proc.filter_name(name)
-        if not proc_ret == "":
-            values.append(proc_ret)
 
     def filter_value(self, value: str) -> np.ndarray:
         names = []
-        # for list
-        if type(self.processes).__name__ == "list":
-            for proc in self.processes:
-                self.filter_value_intermediate_step(proc, value, names)
-        else:
-            for proc in np.nditer(self.processes):
-                self.filter_value_intermediate_step(proc, value, names)
+        for proc in self.processes:
+            self.filter_value_intermediate_step(proc, value, names)
         return np.array(names, dtype=object)
 
     def filter_value_intermediate_step(
