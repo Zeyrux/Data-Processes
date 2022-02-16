@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
 )
 
 from lib.Options import OPTIONS_GEN
-from lib.database import write_all_info
+from lib.database import read_database
 # https://pyqtgraph.readthedocs.io/en/latest/how_to_use.html
 # https://www.pythonguis.com/tutorials/plotting-pyqtgraph/
 

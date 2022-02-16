@@ -3,8 +3,6 @@ import shutil
 import pathlib
 import numpy as np
 
-from lib.Options import OPTIONS_GEN, OPTIONS_GEN_WITH_TYPE, Class
-
 DATABASE_PATH_ORI = os.path.join("C:\\Zeyrux\\Database", "database.data")
 DATABASE_DIR_COPY = "C:\\Zeyrux\\Database\\Analyse"
 DATABASE_PATH_COPY = os.path.join(DATABASE_DIR_COPY, "database_copy.data")
@@ -35,6 +33,33 @@ class Process:
     def save(self, process_screenshot: "ProcessScreenshot"):
         self.info = np.array(self.info)
         process_screenshot.add_proc(self)
+
+    def filter_name(self, name: str) -> str:
+        # for list
+        if type(self.info).__name__ == "list":
+            for info in self.info:
+                if info.name == name:
+                    return info.value
+        # for numpy array
+        else:
+            for info in np.nditer(self.info):
+                if info.name == name:
+                    return info.value
+        return ""
+
+    def filter_value(self, value: str) -> np.ndarray:
+        names = []
+        # for list
+        if type(self.info).__name__ == "list":
+            for info in self.info:
+                if info.value == value:
+                    names.append(info.name)
+        # for numpy array
+        else:
+            for info in np.nditer(self.info):
+                if info.value == value:
+                    names.append(info.name)
+        return np.array(names, dtype=str)
 
     def __len__(self):
         return len(self.info)
@@ -68,6 +93,50 @@ class ProcessScreenshot:
         self.processes = np.array(self.processes)
         process_screenshot_book.add_proc_screenshot(self)
 
+    def filter_name(self, name: str) -> np.ndarray:
+        values = []
+        # for list
+        if type(self.processes).__name__ == "list":
+            for proc in self.processes:
+                self.filter_name_intermediate_step(proc, name, values)
+        # for numpy array
+        else:
+            for proc in np.nditer(self.processes, flags=["refs_ok"]):
+                self.filter_name_intermediate_step(proc, name, values)
+        return np.array(values, dtype=str)
+
+    def filter_name_intermediate_step(
+            self,
+            proc: Process,
+            name: str,
+            values: list
+    ):
+        print(type(proc).__name__)
+        proc_ret = proc.filter_name(name)
+        if not proc_ret == "":
+            values.append(proc_ret)
+
+    def filter_value(self, value: str) -> np.ndarray:
+        names = []
+        # for list
+        if type(self.processes).__name__ == "list":
+            for proc in self.processes:
+                self.filter_value_intermediate_step(proc, value, names)
+        else:
+            for proc in np.nditer(self.processes):
+                self.filter_value_intermediate_step(proc, value, names)
+        return np.array(names, dtype=object)
+
+    def filter_value_intermediate_step(
+            self,
+            proc: Process,
+            value: str,
+            names: list
+    ):
+        proc_ret = proc.filter_value(value)
+        if len(proc_ret) != 0:
+            names.append(proc_ret)
+
     def __len__(self):
         return len(self.processes)
 
@@ -95,6 +164,10 @@ class ProcessScreenshotBook:
         return f"len: {self.__len__()}"
 
 
+def empty():
+    pass
+
+
 def copy_database():
     if not os.path.isdir(DATABASE_DIR_COPY):
         pathlib.Path(DATABASE_DIR_COPY).mkdir(
@@ -104,7 +177,10 @@ def copy_database():
     shutil.copy(DATABASE_PATH_ORI, DATABASE_PATH_COPY)
 
 
-def write_all_info(copy_data=True):
+def read_database(
+        copy_data=True,
+        progress_func=empty
+) -> ProcessScreenshotBook:
     # copy database
     if copy_data:
         copy_database()
@@ -127,6 +203,7 @@ def write_all_info(copy_data=True):
                 proc_screenshot = ProcessScreenshot()
                 proc_screenshot.date = line[6:len(line)]
                 cnt_inputs += 1
+                progress_func()
                 continue
             # save finished in
             elif line[0:11] == "finished in":
@@ -143,3 +220,4 @@ def write_all_info(copy_data=True):
                         info[1]
                     ))
                 proc.save(proc_screenshot)
+    return proc_screenshot_book

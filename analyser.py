@@ -59,6 +59,8 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    from lib.database import write_all_info, copy_database
+    from lib.database import read_database, copy_database
     # copy_database()
-    write_all_info(copy_data=False)
+    book = read_database(copy_data=False)
+    print(book.proc_screenshots[0].filter_name("name"))
+
