@@ -54,7 +54,7 @@ def main():
     window = MainWindow()
     window.show()
 
-    app.exec()
+    # app.exec()
 
 
 if __name__ == "__main__":
