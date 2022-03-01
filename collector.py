@@ -24,12 +24,14 @@ def save():
 
 
 def main():
+    for _ in psutil.process_iter(attrs=["cpu_percent"]):
+        pass
     while True:
+        time.sleep(60)
         try:
             threading.Thread(target=save, daemon=True).start()
         except Exception as e:
             print(e)
-        time.sleep(60)
 
 
 if __name__ == "__main__":
