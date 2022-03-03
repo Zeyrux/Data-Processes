@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import (
-    QPushButton
+    QPushButton,
+    QRadioButton
 )
 
 
@@ -25,3 +26,14 @@ class CustomPushButton(QPushButton):
             self.clicked.connect(lambda: button_click(name))
         else:
             self.clicked.connect(button_click)
+
+
+class CustomRationButton(QRadioButton):
+    def __init__(
+            self,
+            clicked=empty,
+            name=""
+    ):
+        super().__init__(name)
+        self.setObjectName(name)
+        self.clicked.connect(lambda: clicked(self))

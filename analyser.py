@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 from lib.style import Style
 from frames.changer import ChangeVisualisation
 from frames.visualizer import Visualizer
+from frames.ChangeCalculation import CalculationChanger
 
 STYLE = "Fusion"
 STYLE_Q_PUSH_BUTTON = open("styles\\QPushButton.css", "r").read()
@@ -37,13 +38,17 @@ class MainWindow(QMainWindow):
         ]), self.change_visualization)
         self.visualizer = Visualizer()
         self.layout.addWidget(self.visualizer)
+        self.layout.addWidget(CalculationChanger(self.change_calculation))
         self.layout.addWidget(self.change)
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
 
     def change_visualization(self, new_data: str):
-        self.visualizer.change(new_data)
+        self.visualizer.change_data(new_data)
+
+    def change_calculation(self, new_calcu):
+        self.visualizer.change_calculation(new_calcu)
 
 
 def main():

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from threading import Thread
 
 import pandas as pd
 import numpy as np
@@ -14,20 +15,7 @@ from PyQt6.QtWidgets import (
 )
 
 from lib.Options import OPTIONS_GEN
-from lib.database import (
-    read_database,
-    ProcessScreenshotBook,
-    ProcessScreenshot,
-    Process,
-    Info
-)
-
-
-def average(array: np.ndarray | list):
-    result = 0
-    for element in array:
-        result += element
-    return result / len(array)
+from lib.database import read_database
 
 
 class Canvas(FigureCanvas):
@@ -38,12 +26,15 @@ class Canvas(FigureCanvas):
 
 
 class Visualizer(QMainWindow):
+
+    calculation = None
+    cur_data = ""
+
     def __init__(self):
         super().__init__()
         self.graph = Canvas(self)
 
         self.book = read_database(copy_data=False)
-        self.plot("cpu_percent")
         self.graph.fig.set_facecolor("#444")
 
         self.layout = QVBoxLayout()
@@ -68,14 +59,26 @@ class Visualizer(QMainWindow):
                 self.graph.ax.plot(dates, plot_data)
                 dates = []
                 plot_data = []
-            plot_data.append(data.max())
+            plot_data.append(self.calculation(data))
+            if i % 100 == 99:
+                self.graph.figure.canvas.draw()
             dates.append(date)
             last_date = date
         self.graph.ax.plot(dates, plot_data)
         self.graph.figure.canvas.draw()
 
-    def change(self, new_data: str):
-        self.plot(OPTIONS_GEN[int(new_data)])
+    def change_data(self, new_data: str):
+        self.cur_data = new_data
+        Thread(
+            target=self.plot,
+            args=(OPTIONS_GEN[int(new_data)],),
+            daemon=True
+        ).start()
+
+    def change_calculation(self, new_calcu):
+        self.calculation = new_calcu
+        if self.cur_data != "":
+            self.change_data(self.cur_data)
 
 
 # https://www.w3schools.com/python/matplotlib_scatter.asp

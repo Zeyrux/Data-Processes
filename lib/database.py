@@ -104,7 +104,7 @@ class ProcessScreenshot:
 
 
 class ProcessScreenshotBook:
-    def __init__(self, proc_screenshots: list=None):
+    def __init__(self, proc_screenshots=None):
         if proc_screenshots is None:
             proc_screenshots = []
         self.proc_screenshots = proc_screenshots
