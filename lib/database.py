@@ -80,6 +80,10 @@ class ProcessScreenshot:
         process_screenshot_book.add_proc_screenshot(self)
 
     def filter_name(self, name: str) -> np.ndarray:
+        if name == "date":
+            return np.array([self.date])
+        if name == "finished_in":
+            return np.array([self.finished_in])
         values = []
         for proc in self.processes:
             proc_ret = proc.filter_name(name)
@@ -173,10 +177,10 @@ def read_database(
                 proc = Process()
                 line = line.split(";")
                 for info in line:
-                    info = info.split("#")
+                    info_name, info_value = info.split("#")
                     proc.add_info(Info(
-                        info[0],
-                        info[1]
+                        info_name,
+                        info_value
                     ))
                 proc.save(proc_screenshot)
     return proc_screenshot_book

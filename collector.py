@@ -4,7 +4,7 @@ import time
 import psutil
 import threading
 
-from lib.Options import OPTIONS_GEN
+from lib.Options import OPTIONS
 
 DATABASE_PATH = os.path.join("C:\\Zeyrux\\Database", "database.data")
 
@@ -16,7 +16,7 @@ def save():
         f.write(cur_time.encode())
         for proc in psutil.process_iter():
             str_with_proc = ""
-            proc = proc.as_dict(attrs=OPTIONS_GEN)
+            proc = proc.as_dict(attrs=OPTIONS)
             for name, value in proc.items():
                 str_with_proc += name + "#" + str(value) + ";"
             f.write((str_with_proc[0:len(str_with_proc)-1] + "\n").encode())

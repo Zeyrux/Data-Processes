@@ -15,14 +15,16 @@ OPTIONS_SELF = [
 ]
 
 
-OPTIONS_GEN = [
+OPTIONS = [
     "connections",
     "cpu_affinity",
     "cpu_percent",
     "cpu_times",
     "create_time",
     "cwd",
+    "date",
     "exe",
+    "finished_in",
     "io_counters",
     "ionice",
     "memory_full_info",
@@ -39,14 +41,16 @@ OPTIONS_GEN = [
     "username"
 ]
 
-OPTIONS_GEN_WITH_TYPE = {
+OPTIONS_WITH_TYPE = {
     "connections": Class.create_list(Class("pconn", "string")),
     "cpu_affinity": Class.create_list("int"),
     "cpu_percent": "float",
     "cpu_times": Class("pcputimes", "float"),
     "create_time": "float",
     "cwd": "string",
+    "date": "date",
     "exe": "string",
+    "finished_in": "float",
     "io_counters": Class("pio", "int"),
     "ionice": "string",
     "memory_full_info": Class("pfullmem", "int"),
