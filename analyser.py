@@ -53,6 +53,8 @@ class MainWindow(QMainWindow):
             self.change_visualization_y
         )
 
+        self.visualizer.set_ref_change_calcu(self.change_calcu)
+
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.visualizer)
         self.layout.addWidget(self.change_calcu)

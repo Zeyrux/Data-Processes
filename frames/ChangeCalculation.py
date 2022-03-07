@@ -3,8 +3,11 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QGridLayout,
-    QLabel
+    QLabel,
+    QLineEdit
 )
+from PyQt6.QtGui import QKeyEvent
+from PyQt6.QtCore import Qt
 
 from lib.CustomWidgets import CustomRationButton
 from lib.style import Style
@@ -31,6 +34,9 @@ class CalculationChanger(QMainWindow):
             clicked=self.clicked,
             name="Add All"
         )
+        self.inp_cnt_string = QLineEdit()
+        self.inp_cnt_string.keyReleaseEvent = self.cnt_string_key_release
+        self.inp_cnt_string.setPlaceholderText("string to count")
 
         self.button_average.click()
 
@@ -39,11 +45,26 @@ class CalculationChanger(QMainWindow):
         self.layout.addWidget(self.button_average)
         self.layout.addWidget(self.button_min)
         self.layout.addWidget(self.button_add_all)
+        self.layout.addWidget(self.inp_cnt_string)
 
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
 
         self.setCentralWidget(self.widget)
+
+    def cnt_string_key_release(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key.Key_Return:
+            self.change_calcu_func(self.get_cur_aktiv_button().objectName())
+
+    def get_cur_aktiv_button(self):
+        if self.button_min.isChecked():
+            return self.button_min
+        if self.button_average.isChecked():
+            return self.button_average
+        if self.button_max.isChecked():
+            return self.button_max
+        if self.button_add_all.isChecked():
+            return self.button_add_all
 
     def clicked(self, super: CustomRationButton):
         self.change_calcu_func(super.objectName())

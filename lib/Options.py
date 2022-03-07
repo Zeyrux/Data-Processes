@@ -46,7 +46,7 @@ OPTIONS_WITH_TYPE = {
     "cpu_affinity": Class.create_list("int"),
     "cpu_percent": "float",
     "cpu_times": Class("pcputimes", "float"),
-    "create_time": "float",
+    "create_time": "date",
     "cwd": "string",
     "date": "date",
     "exe": "string",
