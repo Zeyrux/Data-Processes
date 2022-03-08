@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 from lib.database import read_database
 from lib.Calculation import Calclation
 from frames.ChangeCalculation import CalculationChangerTwoAx
+from lib.Options import OPTIONS_WITH_TYPE
 
 
 class Canvas(FigureCanvas):
@@ -30,6 +31,7 @@ class VisualizerGraph(QMainWindow):
 
     cur_data_x = None
     cur_data_y = None
+    change_state_calcu = None
 
     def __init__(self):
         super().__init__()
@@ -71,7 +73,6 @@ class VisualizerGraph(QMainWindow):
                 self.graph.figure.canvas.draw()
 
             data_x: np.ndarray = screenshot.filter_name(info_x)
-            a = self.calcu_x.calculation(data_x)
             plot_data_x.append(self.calcu_x.calculation(data_x))
             data_y: np.ndarray = screenshot.filter_name(info_y)
             plot_data_y.append(self.calcu_y.calculation(data_y))
@@ -80,35 +81,44 @@ class VisualizerGraph(QMainWindow):
         self.graph.ax.scatter(plot_data_x, plot_data_y)
         self.graph.figure.canvas.draw()
 
-    def change_graph_x(self, new_data=None, new_calcu=None):
+    def change_graph_x(self, new_data=None, new_calcu=None, plot=True):
         if new_data is not None:
             self.cur_data_x = new_data
         if new_calcu is not None:
             self.calcu_x.new_calculation_name = new_calcu
-        self.start_plot()
+        if plot:
+            self.start_plot()
 
-    def change_graph_y(self, new_data=None, new_calcu=None):
+    def change_graph_y(self, new_data=None, new_calcu=None, plot=True):
         if new_data is not None:
             self.cur_data_y = new_data
         if new_calcu is not None:
             self.calcu_y.new_calculation_name = new_calcu
-        self.start_plot()
+        if plot:
+            self.start_plot()
 
     def start_plot(self):
         if self.cur_data_x is not None \
                 and self.cur_data_y is not None:
+            self.calcu_x.ref_change.change_state(
+                OPTIONS_WITH_TYPE.get(self.cur_data_x)
+            )
+            self.calcu_y.ref_change.change_state(
+                OPTIONS_WITH_TYPE.get(self.cur_data_y)
+            )
+
             self.calcu_x.calculation = self.calcu_x.get_change_calcu(
                 self.cur_data_x
             )
             self.calcu_y.calculation = self.calcu_y.get_change_calcu(
                 self.cur_data_y
             )
+
             Thread(
                 target=self.plot,
                 args=(self.cur_data_x, self.cur_data_y,),
                 daemon=True
             ).start()
-        pass
 
 
 # https://www.w3schools.com/python/matplotlib_scatter.asp

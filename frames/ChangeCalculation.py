@@ -13,9 +13,13 @@ from lib.CustomWidgets import CustomRationButton
 from lib.style import Style
 
 
-class CalculationChanger(QMainWindow):
+class CalculationChangerNumbers(QMainWindow):
+
+    enabled = False
+
     def __init__(self, change_calcu_func):
         super().__init__()
+
         self.change_calcu_func = change_calcu_func
 
         self.button_max = CustomRationButton(
@@ -34,27 +38,20 @@ class CalculationChanger(QMainWindow):
             clicked=self.clicked,
             name="Add All"
         )
-        self.inp_cnt_string = QLineEdit()
-        self.inp_cnt_string.keyReleaseEvent = self.cnt_string_key_release
-        self.inp_cnt_string.setPlaceholderText("string to count")
-
-        self.button_average.click()
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.button_max)
         self.layout.addWidget(self.button_average)
         self.layout.addWidget(self.button_min)
         self.layout.addWidget(self.button_add_all)
-        self.layout.addWidget(self.inp_cnt_string)
 
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
 
         self.setCentralWidget(self.widget)
 
-    def cnt_string_key_release(self, event: QKeyEvent) -> None:
-        if event.key() == Qt.Key.Key_Return:
-            self.change_calcu_func(self.get_cur_aktiv_button().objectName())
+    def clicked(self, super: CustomRationButton, plot=True):
+        self.change_calcu_func(super.objectName(), plot)
 
     def get_cur_aktiv_button(self):
         if self.button_min.isChecked():
@@ -66,8 +63,93 @@ class CalculationChanger(QMainWindow):
         if self.button_add_all.isChecked():
             return self.button_add_all
 
+    def enable(self):
+        if not self.enabled:
+            self.button_average.setChecked(True)
+            self.change_calcu_func(self.button_average.objectName(), False)
+            self.enabled = True
+
+
+class CalculationChangerStrings(QMainWindow):
+
+    enabled = False
+
+    def __init__(self, change_calcu_func):
+        super().__init__()
+        self.change_calcu_func = change_calcu_func
+
+        self.button_cnt_string = CustomRationButton(
+            clicked=self.clicked,
+            name="Count Strings"
+        )
+
+        self.inp_string = QLineEdit()
+        self.inp_string.keyReleaseEvent = self.cnt_string_key_release
+        self.inp_string.setPlaceholderText("string to count")
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.button_cnt_string)
+        self.layout.addWidget(self.inp_string)
+
+        self.widget = QWidget()
+        self.widget.setLayout(self.layout)
+        self.setCentralWidget(self.widget)
+
+    def cnt_string_key_release(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key.Key_Return:
+            self.change_calcu_func(self.get_cur_aktiv_button().objectName())
+
     def clicked(self, super: CustomRationButton):
         self.change_calcu_func(super.objectName())
+
+    def get_cur_aktiv_button(self) -> CustomRationButton:
+        if self.button_cnt_string.isChecked():
+            return self.button_cnt_string
+
+    def enable(self):
+        if not self.enabled:
+            self.button_cnt_string.setChecked(True)
+            self.change_calcu_func(self.button_cnt_string.objectName(), False)
+            self.enabled = True
+
+
+class CalculationChangerDates(QMainWindow):
+
+    enabled = False
+
+    def __init__(self, change_calcu_func):
+        super().__init__()
+        self.change_calcu_func = change_calcu_func
+
+    def enable(self):
+        if not self.enabled:
+            self.enabled = True
+
+
+class CalculationChanger(QMainWindow):
+    def __init__(self, change_calcu_func, init_state="float"):
+        super().__init__()
+        self.state = init_state
+
+        self.widget_numbers = CalculationChangerNumbers(change_calcu_func)
+        self.widget_strings = CalculationChangerStrings(change_calcu_func)
+        self.widget_dates = CalculationChangerDates(change_calcu_func)
+
+        self.widget = QWidget()
+        self.change_state(self.state)
+        self.setCentralWidget(self.widget)
+
+    def change_state(self, state: str):
+        self.state = state
+        if state == "float" or state == "int":
+            self.widget = self.widget_numbers
+        elif state == "string":
+            self.widget = self.widget_strings
+        elif state == "date":
+            self.widget = self.widget_dates
+        self.widget.enable()
+        self.setCentralWidget(self.widget)
+        self.centralWidget().update()
 
 
 class CalculationChangerTwoAx(QMainWindow):

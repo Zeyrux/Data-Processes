@@ -71,7 +71,7 @@ class Calclation:
         self.ref_change = ref_change
 
     def count_string(self, data: np.ndarray):
-        cnt_string = self.ref_change.inp_cnt_string.text()
+        cnt_string = self.ref_change.widget_strings.inp_string.text()
         cnt = 0
         for element in data:
             if element == cnt_string:

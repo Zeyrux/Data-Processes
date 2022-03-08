@@ -70,11 +70,11 @@ class MainWindow(QMainWindow):
     def change_visualization_y(self, new_data: str):
         self.visualizer.change_graph_y(new_data=new_data)
 
-    def change_calculation_x(self, new_calcu: str):
-        self.visualizer.change_graph_x(new_calcu=new_calcu)
+    def change_calculation_x(self, new_calcu: str, plot: bool):
+        self.visualizer.change_graph_x(new_calcu=new_calcu, plot=plot)
 
-    def change_calculation_y(self, new_calcu: str):
-        self.visualizer.change_graph_y(new_calcu=new_calcu)
+    def change_calculation_y(self, new_calcu: str, plot: bool):
+        self.visualizer.change_graph_y(new_calcu=new_calcu, plot=plot)
 
 
 def main():
