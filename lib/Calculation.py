@@ -1,10 +1,5 @@
-import time
-
 import numpy as np
 import pandas as pd
-
-from lib.Options import OPTIONS_WITH_TYPE
-from frames.ChangeCalculation import CalculationChanger
 
 
 def check_dtpye(target: np.ndarray, dtype) -> bool:
@@ -44,16 +39,14 @@ def add_all(data: np.ndarray) -> float:
 
 # calculation
 class Calclation:
-    def __init__(self, ref_change_calcu: CalculationChanger = None):
+    def __init__(self, super_ref):
         self.calculation = None
         self.new_calculation_name = None
-        self.ref_change = ref_change_calcu
+        self.super_ref = super_ref
 
-    def get_change_calcu(self, data: str):
-        data = data.lower()
+    def get_change_calcu(self):
         new_calcu = self.new_calculation_name.lower()
-        if OPTIONS_WITH_TYPE.get(data) == "int" \
-                or OPTIONS_WITH_TYPE.get(data) == "float":
+        if self.super_ref.state == "float" or self.super_ref.state == "int":
             if new_calcu == "maximum":
                 return maximum
             elif new_calcu == "average":
@@ -62,16 +55,13 @@ class Calclation:
                 return minimum
             elif new_calcu == "add_all":
                 return add_all
-        elif OPTIONS_WITH_TYPE.get(data) == "date":
+        elif self.super_ref.state == "date":
             return self.date
-        elif OPTIONS_WITH_TYPE.get(data) == "string":
+        elif self.super_ref.state == "string":
             return self.count_string
 
-    def set_ref_change(self, ref_change: CalculationChanger):
-        self.ref_change = ref_change
-
     def count_string(self, data: np.ndarray):
-        cnt_string = self.ref_change.widget_strings.inp_string.text()
+        cnt_string = self.super_ref.widget_strings.inp_string.text()
         cnt = 0
         for element in data:
             if element == cnt_string:

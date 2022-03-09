@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtCore import Qt
 
+from lib.Calculation import Calclation
 from lib.CustomWidgets import CustomRationButton
 from lib.style import Style
 
@@ -129,7 +130,9 @@ class CalculationChangerDates(QMainWindow):
 class CalculationChanger(QMainWindow):
     def __init__(self, change_calcu_func, init_state="float"):
         super().__init__()
+
         self.state = init_state
+        self.calcu = Calclation(self)
 
         self.widget_numbers = CalculationChangerNumbers(change_calcu_func)
         self.widget_strings = CalculationChangerStrings(change_calcu_func)
@@ -140,7 +143,7 @@ class CalculationChanger(QMainWindow):
         self.setCentralWidget(self.widget)
 
     def change_state(self, state: str):
-        self.state = state
+        self.state = state.lower()
         if state == "float" or state == "int":
             self.widget = self.widget_numbers
         elif state == "string":
@@ -153,8 +156,10 @@ class CalculationChanger(QMainWindow):
 
 
 class CalculationChangerTwoAx(QMainWindow):
-    def __init__(self, style: Style, change_calcu_x, change_calcu_y):
+    def __init__(self, style: Style, change_calcu_x, change_calcu_y, visualizer):
         super().__init__()
+        visualizer.set_ref_calcu(self)
+
         self.setStyleSheet(style.style)
 
         self.calcu_x = CalculationChanger(change_calcu_x)

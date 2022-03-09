@@ -45,15 +45,14 @@ class MainWindow(QMainWindow):
         self.change_calcu = CalculationChangerTwoAx(
             change_calcu_style,
             self.change_calculation_x,
-            self.change_calculation_y
+            self.change_calculation_y,
+            self.visualizer
         )
         self.change_visu = ChangeVisualisationTwoAx(
             change_visu_style,
             self.change_visualization_x,
             self.change_visualization_y
         )
-
-        self.visualizer.set_ref_change_calcu(self.change_calcu)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.visualizer)
